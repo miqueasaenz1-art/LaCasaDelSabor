@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -9,6 +9,7 @@
     <RootNamespace>Login_and_Register_System</RootNamespace>
     <AssemblyName>Login and Register System</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <CodePage>65001</CodePage>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -129,17 +130,42 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\PedidoBLL.cs" />
+    <Compile Include="BLL\ProductoBLL.cs" />
+    <Compile Include="BLL\UsuarioBLL.cs" />
+    <Compile Include="BLL\VentaBLL.cs" />
+    <Compile Include="ConfigurarServidorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DAL\ConexionBD.cs" />
+    <Compile Include="DAL\PedidoDAL.cs" />
+    <Compile Include="DAL\ProductoDAL.cs" />
+    <Compile Include="DAL\UsuarioDAL.cs" />
     <Compile Include="Dashboard.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dashboard.Designer.cs">
       <DependentUpon>Dashboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="Entidades\PedidoEntity.cs" />
+    <Compile Include="Entidades\ProductoEntity.cs" />
+    <Compile Include="Entidades\UsuarioEntity.cs" />
+    <Compile Include="Entidades\VentaEntity.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EncargosForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include=".Designer.cs">
+      <DependentUpon>EncargosForm.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InicioForm.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="ProductosForm.cs">
       <SubType>Form</SubType>
@@ -155,6 +181,17 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DAL\VentaDAL.cs" />
+    <Compile Include="Tema.cs" />
+    <Compile Include="UsuariosForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VentasForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VentasForm.Designer.cs">
+      <DependentUpon>VentasForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Dashboard.resx">
       <DependentUpon>Dashboard.cs</DependentUpon>
     </EmbeddedResource>
@@ -164,10 +201,16 @@
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="EncargosForm.resx">
+      <DependentUpon>EncargosForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VentasForm.resx">
+      <DependentUpon>VentasForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="packages.config" />
@@ -202,6 +245,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\System.Text.Json.6.0.0\build\System.Text.Json.targets" Condition="Exists('packages\System.Text.Json.6.0.0\build\System.Text.Json.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

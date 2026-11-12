@@ -16,6 +16,7 @@ namespace Login_and_Register_System
         public frmRegister()
         {
             InitializeComponent();
+            Tema.Aplicar(this);
         }
 
         NpgsqlConnection conn = new NpgsqlConnection(ConfigurationManager.AppSettings.Get("MyConnection"));
