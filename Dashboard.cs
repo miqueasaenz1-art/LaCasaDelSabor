@@ -42,39 +42,24 @@ namespace Login_and_Register_System
             lblSeccionActual.DoubleClick += (s, e) => AlternarMaximizar();
 
             label1.Text = nombreUsuario;
-            label2.Text = rolUsuario;
-            Tema.EstilizarBadge(label2, Tema.Rosa, Tema.Oscuro, 12);
 
-            // Avatar circular suave
-            using (var gp = new GraphicsPath())
+            // Logotipo oficial de pastelería (mismo de LoginForm)
+            try
             {
-                gp.AddEllipse(0, 0, pictureBox1.Width, pictureBox1.Height);
-                pictureBox1.Region = new Region(gp);
+                var rm = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
+                var logoLogin = rm.GetObject("pictureBox1.Image") as Image;
+                if (logoLogin != null)
+                {
+                    pictureBox1.Image = logoLogin;
+                }
             }
+            catch { }
 
-            // Bordes sutiles de separación y detalles de pastelería
+            // Borde festoneado tipo glaseado al pie del encabezado del menú
             panel2.Paint += (s, e) =>
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var pHalo = new Pen(Tema.Rosa, 2f))
-                using (var bHalo = new SolidBrush(Tema.Crema))
-                {
-                    var halo = new Rectangle(pictureBox1.Left - 4, pictureBox1.Top - 4, pictureBox1.Width + 8, pictureBox1.Height + 8);
-                    e.Graphics.FillEllipse(bHalo, halo);
-                    e.Graphics.DrawEllipse(pHalo, halo);
-                }
-
-                Color[] chispas =
-                {
-                    Color.FromArgb(140, Tema.Rosa),
-                    Color.FromArgb(120, Tema.Caramelo),
-                    Color.FromArgb(110, Tema.Vino)
-                };
-                Tema.DibujarChispas(e.Graphics, new Rectangle(8, 38, 64, 70), chispas, 5, 6);
-                Tema.DibujarChispas(e.Graphics, new Rectangle(panel2.Width - 72, 38, 64, 70), chispas, 9, 6);
-
-                // Borde festoneado tipo glaseado al pie del encabezado del menú
-                Tema.DibujarOndaGlaseado(e.Graphics, 0, panel2.Height - 2, panel2.Width + 14, 16, Tema.Rosa, true);
+                Tema.DibujarOndaGlaseado(e.Graphics, 0, panel2.Height - 2, panel2.Width + 14, 14, Tema.Rosa, true);
                 using (var p = new Pen(Tema.Borde, 1f))
                     e.Graphics.DrawLine(p, 14, panel2.Height - 1, panel2.Width - 14, panel2.Height - 1);
             };
@@ -174,10 +159,6 @@ namespace Login_and_Register_System
         private void Dashboard_Load(object sender, EventArgs e)
         {
             button1_Click(button1, EventArgs.Empty);
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
         }
 
         private void AbrirFormularioEnPanel(Form formHijo)
