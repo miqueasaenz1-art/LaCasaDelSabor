@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -64,6 +64,16 @@ namespace Login_and_Register_System.BLL
             pedido.Total = total;
 
             return dal.Guardar(pedido);
+        }
+
+        public void ActualizarEstado(int idPedido, string nuevoEstado)
+        {
+            if (idPedido <= 0)
+                throw new ArgumentException("ID de encargo no válido.");
+            if (string.IsNullOrWhiteSpace(nuevoEstado))
+                throw new ArgumentException("Selecciona un estado.");
+
+            dal.ActualizarEstado(idPedido, nuevoEstado);
         }
     }
 }

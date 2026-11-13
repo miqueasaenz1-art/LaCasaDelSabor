@@ -865,11 +865,28 @@ IF @idCupcakes IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.Productos WHERE nom
     VALUES ('Cupcakes de Vainilla', 'Docena de cupcakes de vainilla', 300.00, 1, @idCupcakes);
 GO
 
--- Usuario administrador de prueba
+-- Usuarios de prueba por rol
+-- 1. Administrador (acceso total a todos los módulos)
 IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'admin@lacasadelsabor.com')
 BEGIN
     INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
     VALUES (N'Administrador', N'admin@lacasadelsabor.com', N'admin123', N'Administrador', 1);
+END
+GO
+
+-- 2. Cajero (ventas, cobro, catálogo en consulta y registro de encargos)
+IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'cajero@lacasadelsabor.com')
+BEGIN
+    INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
+    VALUES (N'Cajero Principal', N'cajero@lacasadelsabor.com', N'cajero123', N'Cajero', 1);
+END
+GO
+
+-- 3. Pastelería / Cocina (comanda de producción: vista de encargos y actualización de estado)
+IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'pasteleria@lacasadelsabor.com')
+BEGIN
+    INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
+    VALUES (N'Chef Pastelero', N'pasteleria@lacasadelsabor.com', N'pasteleria123', N'Pastelería', 1);
 END
 GO
 

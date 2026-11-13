@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -249,6 +249,24 @@ namespace Login_and_Register_System.DAL
                 }
             }
             return resumen;
+        }
+
+        public void ActualizarEstado(int idPedido, string nuevoEstado)
+        {
+            if (idPedido <= 0)
+                throw new ArgumentException("ID de encargo no válido.");
+            if (string.IsNullOrWhiteSpace(nuevoEstado))
+                throw new ArgumentException("Selecciona un estado.");
+
+            using (var cn = ConexionBD.CrearConexion())
+            using (var cmd = new SqlCommand("UPDATE Pedidos SET estado = @estado WHERE id_pedido = @id;", cn))
+            {
+                cmd.Parameters.AddWithValue("@id", idPedido);
+                cmd.Parameters.AddWithValue("@estado", nuevoEstado.Trim());
+                cn.Open();
+                if (cmd.ExecuteNonQuery() == 0)
+                    throw new ArgumentException("El encargo N.º " + idPedido + " no existe o fue eliminado.");
+            }
         }
     }
 }

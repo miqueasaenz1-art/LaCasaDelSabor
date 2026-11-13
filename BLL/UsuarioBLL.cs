@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Mail;
 using Login_and_Register_System.DAL;
@@ -9,6 +9,27 @@ namespace Login_and_Register_System.BLL
     public class UsuarioBLL
     {
         public static readonly string[] RolesDisponibles = { "Administrador", "Cajero", "Pastelería" };
+
+        public static bool EsAdmin(string rol)
+        {
+            if (string.IsNullOrWhiteSpace(rol)) return false;
+            string r = rol.Trim().ToLowerInvariant();
+            return r.Contains("admin");
+        }
+
+        public static bool EsCajero(string rol)
+        {
+            if (string.IsNullOrWhiteSpace(rol)) return false;
+            string r = rol.Trim().ToLowerInvariant();
+            return r.Contains("cajer");
+        }
+
+        public static bool EsPasteleria(string rol)
+        {
+            if (string.IsNullOrWhiteSpace(rol)) return false;
+            string r = rol.Trim().ToLowerInvariant();
+            return r.Contains("pastel") || r.Contains("cocin") || r.Contains("repost");
+        }
 
         private readonly UsuarioDAL dal = new UsuarioDAL();
 

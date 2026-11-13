@@ -10,6 +10,7 @@ namespace Login_and_Register_System
     public partial class ProductosForm : Form
     {
         private readonly ProductoBLL bll = new ProductoBLL();
+        private readonly string rolUsuario;
 
         private List<ProductoEntity> productos = new List<ProductoEntity>();
         private List<CategoriaEntity> categorias = new List<CategoriaEntity>();
@@ -42,8 +43,13 @@ namespace Login_and_Register_System
         private Button btnGuardar;
         private Button btnEliminar;
 
-        public ProductosForm()
+        public ProductosForm() : this("Administrador")
         {
+        }
+
+        public ProductosForm(string rol)
+        {
+            rolUsuario = string.IsNullOrWhiteSpace(rol) ? "Administrador" : rol;
             InitializeComponent();
             ConstruirInterfaz();
             Tema.Aplicar(this);
@@ -501,6 +507,20 @@ namespace Login_and_Register_System
         private void ProductosForm_Load(object sender, EventArgs e)
         {
             CargarTodo();
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                btnNuevo.Visible = false;
+                btnNuevaCategoria.Visible = false;
+                btnGuardar.Visible = false;
+                btnEliminar.Visible = false;
+                txtNombre.ReadOnly = true;
+                txtDescripcion.ReadOnly = true;
+                numPrecio.Enabled = false;
+                if (numStock != null) numStock.Enabled = false;
+                cmbCategoria.Enabled = false;
+                if (chkDisponible != null) chkDisponible.Enabled = false;
+                lblFormTitulo.Text = "Consulta de producto";
+            }
         }
 
         private void CargarTodo()
@@ -685,12 +705,28 @@ namespace Login_and_Register_System
                 p.Disponibilidad ? Tema.ExitoTexto : Tema.PeligroTexto,
                 12);
 
-            btnGuardar.Text = "Actualizar producto";
-            btnEliminar.Enabled = true;
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                lblFormTitulo.Text = "Producto N.º " + p.IdProducto + " (Consulta)";
+                btnGuardar.Visible = false;
+                btnEliminar.Visible = false;
+            }
+            else
+            {
+                btnGuardar.Text = "Actualizar producto";
+                btnEliminar.Enabled = true;
+            }
         }
 
         private void PrepararNuevo()
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                lblFormTitulo.Text = "Consulta de producto";
+                btnGuardar.Visible = false;
+                btnEliminar.Visible = false;
+                return;
+            }
             idProductoActual = 0;
             lblFormTitulo.Text = "Nuevo producto";
             txtNombre.Text = "";
@@ -708,6 +744,11 @@ namespace Login_and_Register_System
 
         private void BtnNuevaCategoria_Click(object sender, EventArgs e)
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                MessageBox.Show("Tu rol únicamente tiene permiso de consulta en el catálogo.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             using (var dlg = new Form
             {
                 Text = "Nueva categoría",
@@ -752,6 +793,12 @@ namespace Login_and_Register_System
 
         private void BtnGuardar_Click(object sender, EventArgs e)
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                MessageBox.Show("Tu rol únicamente tiene permiso de consulta en el catálogo.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (cmbCategoria.SelectedValue == null)
             {
                 MessageBox.Show("Crea o selecciona una categoría primero.", "Productos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -794,6 +841,12 @@ namespace Login_and_Register_System
 
         private void BtnEliminar_Click(object sender, EventArgs e)
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                MessageBox.Show("Tu rol no tiene permiso para eliminar productos.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (idProductoActual <= 0) return;
 
             var resp = MessageBox.Show(

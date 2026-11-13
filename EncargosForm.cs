@@ -19,6 +19,8 @@ namespace Login_and_Register_System
     public partial class Formpedidos : Form
     {
         private readonly PedidoBLL bll = new PedidoBLL();
+        private readonly string rolUsuario;
+        private Button btnNuevoCliente;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
@@ -26,8 +28,14 @@ namespace Login_and_Register_System
 
         private int idPedidoActual = 0;
         private string filtroActual = "Todos";
-        public Formpedidos()
+
+        public Formpedidos() : this("Administrador")
         {
+        }
+
+        public Formpedidos(string rol)
+        {
+            rolUsuario = string.IsNullOrWhiteSpace(rol) ? "Administrador" : rol;
             InitializeComponent();
 
             Tema.Aplicar(this);
@@ -35,6 +43,41 @@ namespace Login_and_Register_System
 
             dataGridViewPedidos.CellClick += dataGridViewPedidos_CellClick;
             comboBoxEstado.SelectedIndexChanged += (s, ev) => ActualizarBadgeEstado(comboBoxEstado.Text);
+            ConfigurarSegunRol();
+        }
+
+        private void ConfigurarSegunRol()
+        {
+            bool esPasteleria = UsuarioBLL.EsPasteleria(rolUsuario);
+            bool esCajero = UsuarioBLL.EsCajero(rolUsuario);
+
+            if (esPasteleria)
+            {
+                // Modo comanda de cocina para pastelería:
+                // Solo ve las órdenes para prepararlas como en la cocina de un restaurante
+                labelTitulo.Text = "Comanda de Pastelería • Órdenes de Producción";
+                labelDetalleTitulo.Text = "Orden de Trabajo (Cocina)";
+                buttonNuevo.Visible = false;
+                if (btnNuevoCliente != null) btnNuevoCliente.Visible = false;
+                comboBox1Cliente.Enabled = false;
+                dateEntrega.Enabled = false;
+                panelAgregarProd.Visible = false;
+                buttonEliminarPedido.Visible = false;
+
+                buttonGuardar.Text = "Actualizar estado";
+                Tema.EstilizarBotonPrimario(buttonGuardar, Tema.Vino, Tema.VinoHover, 10);
+                buttonImprimir.Text = "Imprimir comanda";
+            }
+            else if (esCajero)
+            {
+                // Cajero: puede registrar encargos, agregar productos y clientes, pero no eliminar
+                buttonEliminarPedido.Visible = false;
+            }
+            else
+            {
+                // Administrador: acceso total
+                buttonEliminarPedido.Visible = true;
+            }
         }
 
         private void AplicarEstilos()
@@ -65,7 +108,7 @@ namespace Login_and_Register_System
             ColumnSubtotal.DefaultCellStyle.Format = "C$ #,##0.00";
 
             comboBox1Cliente.Width = Math.Max(140, comboBox1Cliente.Width - 40);
-            var btnNuevoCliente = new Button
+            btnNuevoCliente = new Button
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Location = new Point(comboBox1Cliente.Right + 6, comboBox1Cliente.Top - 1),
@@ -314,6 +357,29 @@ namespace Login_and_Register_System
 
         private void buttonGuardar_Click(object sender, EventArgs e)
         {
+            if (UsuarioBLL.EsPasteleria(rolUsuario))
+            {
+                if (idPedidoActual <= 0)
+                {
+                    MessageBox.Show("Selecciona un encargo de la lista para actualizar su estado de preparación.", "Comanda de Pastelería", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                try
+                {
+                    bll.ActualizarEstado(idPedidoActual, comboBoxEstado.Text);
+                    MessageBox.Show("Estado del encargo N.º " + idPedidoActual + " actualizado a '" + comboBoxEstado.Text + "'.", "Comanda Actualizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    CargarPedidos();
+                    CargarResumen();
+                    ActualizarBadgeEstado(comboBoxEstado.Text);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("No se pudo actualizar el estado:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                return;
+            }
+
             bool esActualizacion = idPedidoActual > 0;
             var pedido = new PedidoEntity
             {
@@ -367,6 +433,8 @@ namespace Login_and_Register_System
 
         private void buttonNuevo_Click(object sender, EventArgs e)
         {
+            if (UsuarioBLL.EsPasteleria(rolUsuario)) return;
+
             idPedidoActual = 0;
             labelDetalleTitulo.Text = "Nuevo encargo";
             buttonGuardar.Text = "Guardar";
@@ -570,8 +638,16 @@ namespace Login_and_Register_System
             }
 
             idPedidoActual = id;
-            labelDetalleTitulo.Text = "Encargo N.º " + id;
-            buttonGuardar.Text = "Actualizar";
+            if (UsuarioBLL.EsPasteleria(rolUsuario))
+            {
+                labelDetalleTitulo.Text = "Orden de Trabajo N.º " + id;
+                buttonGuardar.Text = "Actualizar estado";
+            }
+            else
+            {
+                labelDetalleTitulo.Text = "Encargo N.º " + id;
+                buttonGuardar.Text = "Actualizar";
+            }
             ActualizarBadgeEstado(p.Estado);
             CalcularTotal();
         }
@@ -603,6 +679,8 @@ namespace Login_and_Register_System
 
         private void buttonAgregar_Click(object sender, EventArgs e)
         {
+            if (UsuarioBLL.EsPasteleria(rolUsuario)) return;
+
             if (comboBoxProducto.SelectedItem == null) return;
 
             var fila = (DataRowView)comboBoxProducto.SelectedItem;

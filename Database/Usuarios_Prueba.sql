@@ -66,17 +66,46 @@ END;
 GO
 
 /* ============================================================
-   USUARIO DE PRUEBA
+   USUARIOS DE PRUEBA POR ROL
    ============================================================ */
+-- 1. Administrador (acceso total a todos los módulos)
 IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'admin@lacasadelsabor.com')
 BEGIN
     INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
     VALUES (N'Administrador', N'admin@lacasadelsabor.com', N'admin123', N'Administrador', 1);
 END
+ELSE
+BEGIN
+    UPDATE dbo.Usuarios SET rol = N'Administrador', activo = 1 WHERE correo = N'admin@lacasadelsabor.com';
+END
+GO
+
+-- 2. Cajero (ventas, cobro, catálogo en consulta y registro de encargos)
+IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'cajero@lacasadelsabor.com')
+BEGIN
+    INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
+    VALUES (N'Cajero Principal', N'cajero@lacasadelsabor.com', N'cajero123', N'Cajero', 1);
+END
+ELSE
+BEGIN
+    UPDATE dbo.Usuarios SET rol = N'Cajero', activo = 1 WHERE correo = N'cajero@lacasadelsabor.com';
+END
+GO
+
+-- 3. Pastelería / Cocina (comanda de producción: vista de encargos y actualización de estado)
+IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE correo = N'pasteleria@lacasadelsabor.com')
+BEGIN
+    INSERT INTO dbo.Usuarios (nombre, correo, contrasena, rol, activo)
+    VALUES (N'Chef Pastelero', N'pasteleria@lacasadelsabor.com', N'pasteleria123', N'Pastelería', 1);
+END
+ELSE
+BEGIN
+    UPDATE dbo.Usuarios SET rol = N'Pastelería', activo = 1 WHERE correo = N'pasteleria@lacasadelsabor.com';
+END
 GO
 
 SELECT id_usuario, nombre, correo, rol, activo
 FROM dbo.Usuarios
-WHERE correo = N'admin@lacasadelsabor.com';
+ORDER BY id_usuario;
 GO
 

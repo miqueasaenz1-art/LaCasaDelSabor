@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Login_and_Register_System.BLL;
 
 namespace Login_and_Register_System
 {
@@ -104,6 +105,40 @@ namespace Login_and_Register_System
             button6.FlatAppearance.MouseDownBackColor = Tema.Rosa;
 
             panelIndicador.BringToFront();
+            ConfigurarPermisosSegunRol();
+        }
+
+        private void ConfigurarPermisosSegunRol()
+        {
+            bool esAdmin = UsuarioBLL.EsAdmin(rolUsuario);
+            bool esCajero = UsuarioBLL.EsCajero(rolUsuario);
+            bool esPasteleria = UsuarioBLL.EsPasteleria(rolUsuario);
+
+            if (!esAdmin && !esCajero && !esPasteleria)
+            {
+                esCajero = true;
+            }
+
+            // Administrador: Todo (Inicio, Ventas, Productos, Encargos, Usuarios)
+            // Cajero: Inicio, Ventas (cobro), Productos (catálogo de consulta), Encargos (registrar). Usuarios oculto.
+            // Pastelería: Encargos (comanda de producción). Inicio, Ventas, Productos y Usuarios ocultos.
+            button1.Visible = !esPasteleria;
+            button2.Visible = esAdmin || esCajero;
+            button3.Visible = esAdmin || esCajero;
+            button4.Visible = true;
+            button5.Visible = esAdmin;
+
+            // Reorganizar verticalmente los botones visibles para eliminar huecos
+            int y = panel2.Bottom + 12;
+            Button[] botones = { button1, button2, button3, button4, button5 };
+            foreach (var b in botones)
+            {
+                if (b.Visible)
+                {
+                    b.Top = y;
+                    y += 54;
+                }
+            }
         }
 
         private void EstilizarBotonMenu(Button btn)
@@ -158,7 +193,14 @@ namespace Login_and_Register_System
 
         private void Dashboard_Load(object sender, EventArgs e)
         {
-            button1_Click(button1, EventArgs.Empty);
+            if (UsuarioBLL.EsPasteleria(rolUsuario))
+            {
+                button4_Click(button4, EventArgs.Empty);
+            }
+            else
+            {
+                button1_Click(button1, EventArgs.Empty);
+            }
         }
 
         private void AbrirFormularioEnPanel(Form formHijo)
@@ -199,24 +241,45 @@ namespace Login_and_Register_System
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario) && !UsuarioBLL.EsCajero(rolUsuario))
+            {
+                MessageBox.Show("Tu rol no tiene acceso al módulo de Ventas.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             MarcarBotonActivo(button2, "Punto de Venta");
-            AbrirFormularioEnPanel(new VentasForm());
+            AbrirFormularioEnPanel(new VentasForm(rolUsuario));
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            MarcarBotonActivo(button3, "Catálogo de Productos");
-            AbrirFormularioEnPanel(new ProductosForm());
+            if (!UsuarioBLL.EsAdmin(rolUsuario) && !UsuarioBLL.EsCajero(rolUsuario))
+            {
+                MessageBox.Show("Tu rol no tiene acceso al catálogo de productos.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            string titulo = UsuarioBLL.EsAdmin(rolUsuario)
+                ? "Catálogo de Productos"
+                : "Catálogo de Productos (Consulta)";
+            MarcarBotonActivo(button3, titulo);
+            AbrirFormularioEnPanel(new ProductosForm(rolUsuario));
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            MarcarBotonActivo(button4, "Encargos y Pedidos");
-            AbrirFormularioEnPanel(new Formpedidos());
+            string titulo = UsuarioBLL.EsPasteleria(rolUsuario)
+                ? "Comanda de Pastelería"
+                : "Encargos y Pedidos";
+            MarcarBotonActivo(button4, titulo);
+            AbrirFormularioEnPanel(new Formpedidos(rolUsuario));
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
+            if (!UsuarioBLL.EsAdmin(rolUsuario))
+            {
+                MessageBox.Show("El módulo de gestión de usuarios está reservado exclusivamente para administradores.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             MarcarBotonActivo(button5, "Usuarios y Sesión");
             AbrirFormularioEnPanel(new UsuariosForm(nombreUsuario, rolUsuario, CerrarSesion));
         }

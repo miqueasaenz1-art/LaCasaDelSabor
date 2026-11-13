@@ -19,12 +19,19 @@ namespace Login_and_Register_System
     public partial class VentasForm : Form
     {
         private readonly VentaBLL bll = new VentaBLL();
+        private readonly string rolUsuario;
         private decimal totalActual = 0;
         private int idVentaActual = 0;
         private List<VentaReporteEntity> ventasReporte;
         private int idxReporte = 0;
-        public VentasForm()
+
+        public VentasForm() : this("Administrador")
         {
+        }
+
+        public VentasForm(string rol)
+        {
+            rolUsuario = string.IsNullOrWhiteSpace(rol) ? "Administrador" : rol;
             InitializeComponent();
             Load += VentasForm_Load;
             buttonAgregar.Click += buttonAgregar_Click;
@@ -70,6 +77,13 @@ namespace Login_and_Register_System
 
         private void VentasForm_Load(object sender, EventArgs e)
         {
+            if (UsuarioBLL.EsPasteleria(rolUsuario))
+            {
+                MessageBox.Show("El rol de Pastelería no tiene acceso al módulo de Ventas.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                BeginInvoke(new Action(() => this.Close()));
+                return;
+            }
+
             labelFecha.Text = DateTime.Now.ToString("dddd, d 'de' MMMM 'de' yyyy",
                               CultureInfo.GetCultureInfo("es-NI"));
 

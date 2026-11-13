@@ -49,7 +49,16 @@ namespace Login_and_Register_System
 
             ConstruirInterfaz();
             Tema.Aplicar(this);
-            Load += (s, e) => CargarUsuarios();
+            Load += (s, e) =>
+            {
+                if (!UsuarioBLL.EsAdmin(rolUsuario))
+                {
+                    MessageBox.Show("El módulo de gestión de usuarios está reservado exclusivamente para administradores.", "Acceso Restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    BeginInvoke(new Action(() => this.Close()));
+                    return;
+                }
+                CargarUsuarios();
+            };
         }
 
         private void ConstruirInterfaz()
