@@ -23,7 +23,7 @@ Login and Register System using C# for Windows Forms
 This project was built using the following technologies and features:
 
 - C#
-- [PostgreSQL](https://www.postgresql.org/)
+  
 - [NpgSql](https://www.npgsql.org/)
 - [Visual Studio IDE](https://visualstudio.microsoft.com)
 
@@ -31,7 +31,7 @@ This project was built using the following technologies and features:
 
 - Clone the repository.
 - Open the project from Visual Studio 2022.
-- Rename the file from <code>APP_config.xml</code> to <code>app.config</code> and in the below code section type your database credentials.
+
 
 
 ```bash
@@ -43,7 +43,6 @@ This project was built using the following technologies and features:
 
 - Database structure.
 
-For this application, we are using A local PostgreSQL Database. 
  
   Table name : csharp_user
   
